@@ -9,19 +9,21 @@ type CameraName =
   | 'PANCAM'
   | 'MINITES'
 
-type RoverName = 'Curiosity' | 'Opportunity' | 'Spirit '
+export type RoverName = 'curiosity' | 'opportunity' | 'spirit '
 
-interface Rover {
+export type DateType = 'sol' | 'earth_date'
+
+export interface Rover {
   id: number
-  sol: number
+  sol?: number
+  earth_date?: string
+  img_src: string
   camera: {
     id: number
     name: CameraName
     rover_id: number
     full_name: string
   }
-  img_src: string
-  earth_date: string
   rover: {
     id: number
     name: RoverName
