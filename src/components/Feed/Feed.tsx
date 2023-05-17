@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, use } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import * as publicService from '@/utils/public-service'
 import { RoverCard } from '@/components/RoverCard/RoverCard'
 import { InfiniteScrollLoader } from '@/components/InfiniteScrollLoader'
@@ -94,7 +94,7 @@ const useSearchFilter: UseSearchFilter = (
     if (photoInfo) {
       setSolDate(photoInfo.sol)
       setEarthDate(photoInfo.earth_date)
-      setTotalPages(photoInfo.total_photos)
+      setTotalPages(getTotalPages(photoInfo.total_photos))
     }
   }
 
@@ -104,7 +104,7 @@ const useSearchFilter: UseSearchFilter = (
     if (photoInfo) {
       setSolDate(photoInfo.sol)
       setEarthDate(photoInfo.earth_date)
-      setTotalPages(photoInfo.total_photos)
+      setTotalPages(getTotalPages(photoInfo.total_photos))
     }
   }
 
@@ -134,6 +134,8 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
     setEarthDate
   } = useSearchFilter(manifests)
 
+  const isLastPage: boolean = page > totalPages
+
   function resetList() {
     setRovers([])
     setPage(1)
@@ -148,10 +150,8 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
         page
       )
 
-      const nextPage = page + 1
-
-      if (nextPage < totalPages) {
-        setPage(nextPage)
+      if (!isLastPage) {
+        setPage(page + 1)
       }
 
       setRovers(rovers => [...rovers, ...newRovers])
@@ -159,7 +159,7 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
     } catch {
       setIsRetry(true)
     }
-  }, [rover, solDate, page])
+  }, [rover, solDate, page, isLastPage])
 
   function handleSolDateBtn() {
     setSolData(solDate - 1)
@@ -193,14 +193,20 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
       {isRetry ? (
         <button onClick={loadMore}>Retry</button>
       ) : (
-        <InfiniteScrollLoader
-          loadMore={loadMore}
-          threshold={2000}
-          debounceDelay={800}
-          render={(ref: MutableRefObject<any>) => (
-            <div ref={ref}>Loading...</div>
+        <>
+          {!isLastPage ? (
+            <InfiniteScrollLoader
+              loadMore={loadMore}
+              threshold={2000}
+              debounceDelay={800}
+              render={(ref: MutableRefObject<any>) => (
+                <div ref={ref}>Loading...</div>
+              )}
+            />
+          ) : (
+            <div>There are no more photos for this date, try changing it.</div>
           )}
-        />
+        </>
       )}
     </FeedContainer>
   )
