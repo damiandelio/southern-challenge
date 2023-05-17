@@ -1,10 +1,17 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { NASA_API_URL, NASA_API_KEY } from '@/utils/constants'
+import type { Rover, ApiError } from '@/utils/types'
 
-async function get(req: NextApiRequest, res: NextApiResponse<any>) {
+type ApiResponse = NextApiResponse<Rover[] | ApiError>
+
+async function get(req: NextApiRequest, res: ApiResponse) {
   const {
     query: { rover, page, earth_date, sol }
   } = req
+
+  if (!rover || (!earth_date && !sol)) {
+    res.status(400).json({ error: 'Missing require parameters' })
+  }
 
   const dateType = earth_date ? 'earth_date' : 'sol'
   const dateValue = earth_date || sol
@@ -18,14 +25,11 @@ async function get(req: NextApiRequest, res: NextApiResponse<any>) {
   if (data?.photos) {
     res.status(200).json(data.photos)
   } else {
-    res.status(400).json({ error: true })
+    res.status(500).json({ error: true })
   }
 }
 
-export default async function handler(
-  req: NextApiRequest,
-  res: NextApiResponse<any>
-) {
+export default async function handler(req: NextApiRequest, res: ApiResponse) {
   try {
     switch (req.method) {
       case 'GET':

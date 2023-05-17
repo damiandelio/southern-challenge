@@ -9,7 +9,7 @@ type CameraName =
   | 'PANCAM'
   | 'MINITES'
 
-export type RoverName = 'curiosity' | 'opportunity' | 'spirit '
+export type RoverName = 'curiosity' | 'opportunity' | 'spirit'
 
 export type DateType = 'sol' | 'earth_date'
 
@@ -26,7 +26,7 @@ export interface Rover {
   }
   rover: {
     id: number
-    name: RoverName
+    name: Capitalize<RoverName>
     landing_date: string
     launch_date: string
     status: string
@@ -35,4 +35,24 @@ export interface Rover {
 
 export interface NasaApiRoverResposne {
   photos: Rover[]
+}
+
+export interface Manifest {
+  name: Capitalize<RoverName>
+  landing_date: string
+  launch_date: string
+  status: string
+  max_sol: number
+  max_date: string
+  total_photos: number
+  photos: Array<{
+    sol: number
+    earth_date: string
+    total_photos: number
+    cameras: CameraName
+  }>
+}
+
+export interface ApiError {
+  error: boolean | string
 }
