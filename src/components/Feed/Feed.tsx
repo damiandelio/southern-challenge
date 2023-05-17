@@ -1,122 +1,16 @@
 'use client'
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 import * as publicService from '@/utils/public-service'
 import { RoverCard } from '@/components/RoverCard/RoverCard'
 import { InfiniteScrollLoader } from '@/components/InfiniteScrollLoader'
+import { useSearchFilter } from '@/hooks/useSearchFilter'
 import { FeedContainer } from './Feed.styles'
 import type { MutableRefObject, FunctionComponent } from 'react'
-import type {
-  Rover,
-  RoverName,
-  // CameraName,
-  Manifest,
-  PhotoInfo
-} from '@/utils/types'
+import type { Rover, Manifest } from '@/utils/types'
 
 interface FeedProps {
   manifests: Manifest[]
-}
-
-const PHOTOS_PER_PAGE = 25
-
-function getManifestByRoverName(
-  manifests: Manifest[],
-  rover: RoverName
-): Manifest {
-  return manifests.find(
-    manifest => manifest.name.toLowerCase() === rover
-  ) as Manifest
-}
-
-function getPhotoInfoBySolDate(
-  manifest: Manifest,
-  solDate: number
-): PhotoInfo | undefined {
-  return manifest.photos.find(photo => photo.sol === solDate)
-}
-
-function getPhotoInfoByEarthDate(
-  manifest: Manifest,
-  earthDate: string
-): PhotoInfo | undefined {
-  return manifest.photos.find(photo => photo.earth_date === earthDate)
-}
-
-function getTotalPages(totalPhotos: number) {
-  return Math.ceil(totalPhotos / PHOTOS_PER_PAGE)
-}
-
-function getDefaultPhotoInfo(manifest: Manifest): PhotoInfo {
-  return manifest.photos[manifest.photos.length - 1]
-}
-
-type UseSearchFilter = (
-  manifests: Manifest[],
-  defaultRover?: RoverName
-) => {
-  rover: RoverName
-  solDate: number
-  earthDate: string
-  totalPages: number
-  setRover: (rover: RoverName) => void
-  setSolData: (date: number) => void
-  setEarthDate: (date: string) => void
-}
-
-const useSearchFilter: UseSearchFilter = (
-  manifests,
-  defaultRover = 'curiosity'
-) => {
-  const [rover, setRover] = useState<RoverName>(defaultRover)
-
-  const [manifest, setManifest] = useState<Manifest>(
-    getManifestByRoverName(manifests, rover)
-  )
-
-  const [solDate, setSolDate] = useState(getDefaultPhotoInfo(manifest).sol)
-
-  const [earthDate, setEarthDate] = useState(
-    getDefaultPhotoInfo(manifest).earth_date
-  )
-
-  const [totalPages, setTotalPages] = useState(
-    getTotalPages(getDefaultPhotoInfo(manifest).total_photos)
-  )
-
-  useEffect(() => {
-    setManifest(getManifestByRoverName(manifests, rover))
-  }, [manifests, rover])
-
-  function _setEarthDate(date: string) {
-    const photoInfo = getPhotoInfoByEarthDate(manifest, date)
-
-    if (photoInfo) {
-      setSolDate(photoInfo.sol)
-      setEarthDate(photoInfo.earth_date)
-      setTotalPages(getTotalPages(photoInfo.total_photos))
-    }
-  }
-
-  function _setSolDate(date: number) {
-    const photoInfo = getPhotoInfoBySolDate(manifest, date)
-
-    if (photoInfo) {
-      setSolDate(photoInfo.sol)
-      setEarthDate(photoInfo.earth_date)
-      setTotalPages(getTotalPages(photoInfo.total_photos))
-    }
-  }
-
-  return {
-    rover,
-    solDate,
-    earthDate,
-    totalPages,
-    setRover: (rover: RoverName) => setRover(rover),
-    setSolData: _setSolDate,
-    setEarthDate: _setEarthDate
-  }
 }
 
 export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
@@ -204,7 +98,7 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
               )}
             />
           ) : (
-            <div>There are no more photos for this date, try changing it.</div>
+            <div>There are no more photos for this date, try with another.</div>
           )}
         </>
       )}
