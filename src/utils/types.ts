@@ -1,4 +1,4 @@
-type CameraName =
+export type CameraName =
   | 'FHAZ'
   | 'RHAZ'
   | 'MAST'
@@ -37,6 +37,13 @@ export interface NasaApiRoverResposne {
   photos: Rover[]
 }
 
+export interface PhotoInfo {
+  sol: number
+  earth_date: string
+  total_photos: number
+  cameras: CameraName
+}
+
 export interface Manifest {
   name: Capitalize<RoverName>
   landing_date: string
@@ -45,12 +52,7 @@ export interface Manifest {
   max_sol: number
   max_date: string
   total_photos: number
-  photos: Array<{
-    sol: number
-    earth_date: string
-    total_photos: number
-    cameras: CameraName
-  }>
+  photos: PhotoInfo[]
 }
 
 export interface ApiError {
