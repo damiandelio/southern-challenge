@@ -15,8 +15,8 @@ export type DateType = 'sol' | 'earth_date'
 
 export interface Rover {
   id: number
-  sol?: number
-  earth_date?: string
+  sol: number
+  earth_date: string
   img_src: string
   camera: {
     id: number

@@ -1,4 +1,4 @@
-import { Feed } from '@/components/Feed'
+import { Feed } from '@/components/Feed/Feed'
 import * as privateService from '@/utils/private-service'
 import type { Manifest } from '@/utils/types'
 

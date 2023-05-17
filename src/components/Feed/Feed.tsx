@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { InfiniteScrollLoader } from '@/components/InfiniteScrollLoader'
 import * as publicService from '@/utils/public-service'
+import { RoverCard } from '@/components/RoverCard/RoverCard'
+import { InfiniteScrollLoader } from '@/components/InfiniteScrollLoader'
+import { FeedContainer } from './Feed.styles'
 import type { MutableRefObject, FunctionComponent } from 'react'
 import type { Rover, Manifest } from '@/utils/types'
 
@@ -32,11 +34,9 @@ export const Feed: FunctionComponent<FeedProps> = manifests => {
   }, [page])
 
   return (
-    <section>
+    <FeedContainer>
       {rovers?.map((rover, i) => (
-        <div key={rover.id + i}>
-          <img src={rover.img_src} alt={rover.rover.name} draggable={false} />
-        </div>
+        <RoverCard key={rover.id + i} {...rover} />
       ))}
       {isRetry ? (
         <button onClick={loadMore}>Retry</button>
@@ -50,6 +50,6 @@ export const Feed: FunctionComponent<FeedProps> = manifests => {
           )}
         />
       )}
-    </section>
+    </FeedContainer>
   )
 }
