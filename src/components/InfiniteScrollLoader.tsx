@@ -54,7 +54,7 @@ export const InfiniteScrollLoader: FunctionComponent<
         observer.unobserve(ref.current)
       }
     }
-  }, [debounced])
+  }, [debounced, threshold])
 
   return render(ref)
 }

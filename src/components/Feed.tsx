@@ -2,18 +2,27 @@
 
 import { useState, useCallback } from 'react'
 import { InfiniteScrollLoader } from '@/components/InfiniteScrollLoader'
-import * as service from '@/utils/service'
+import * as publicService from '@/utils/public-service'
 import type { MutableRefObject, FunctionComponent } from 'react'
-import type { Rover } from '@/utils/types'
+import type { Rover, Manifest } from '@/utils/types'
 
-export const Feed: FunctionComponent = () => {
+interface FeedProps {
+  manifests: Manifest[]
+}
+
+export const Feed: FunctionComponent<FeedProps> = manifests => {
   const [rovers, setRovers] = useState<Rover[]>([])
   const [isRetry, setIsRetry] = useState(false)
   const [page, setPage] = useState(1)
 
   const loadMore = useCallback(async () => {
     try {
-      const newRovers = await service.getRovers('curiosity', 'sol', 1000, page)
+      const newRovers = await publicService.fetchRovers(
+        'curiosity',
+        'sol',
+        1000,
+        page
+      )
       setRovers(rovers => [...rovers, ...newRovers])
       setPage(page => page + 1)
       setIsRetry(false)
