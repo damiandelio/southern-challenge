@@ -30,7 +30,7 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
   const initialEarthDate = initialPhotoInfo.earth_date
   const initialTotalPages = getTotalPages(initialPhotoInfo.total_photos)
 
-  const [rover, setRover] = useState<RoverName>(initialRover)
+  const [roverName, setRoverName] = useState<RoverName>(initialRover)
   const [manifest, setManifest] = useState<Manifest>(initialManifest)
   const [solDate, setSolDate] = useState(initialSolDate)
   const [earthDate, setEarthDate] = useState(initialEarthDate)
@@ -44,7 +44,7 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
   const maxEarthDate = manifest.max_date
 
   useEffect(() => {
-    const _manifest = getManifestByRoverName(manifests, rover)
+    const _manifest = getManifestByRoverName(manifests, roverName)
     const { sol, earth_date, total_photos } = getDefaultPhotoInfo(_manifest)
     const _totalPages = getTotalPages(total_photos)
 
@@ -52,7 +52,7 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
     setSolDate(sol)
     setEarthDate(earth_date)
     setTotalPages(_totalPages)
-  }, [manifests, rover])
+  }, [manifests, roverName])
 
   useEffect(() => {
     const photoInfo = getPhotoInfoBySolDate(manifest, solDate)
@@ -69,7 +69,7 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
   const loadMore = useCallback(async () => {
     try {
       const newRovers = await publicService.fetchRovers(
-        rover,
+        roverName,
         'sol',
         solDate,
         page
@@ -84,7 +84,7 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
     } catch {
       setIsRetry(true)
     }
-  }, [rover, solDate, page, isLastPage])
+  }, [roverName, solDate, page, isLastPage])
 
   function reset() {
     setRovers([])
@@ -93,7 +93,7 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
   }
 
   function handleRoverChange(value: RoverName) {
-    setRover(value)
+    setRoverName(value)
     reset()
   }
 
@@ -105,7 +105,7 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
   return (
     <FeedContainer>
       <nav>
-        rover: {rover}
+        rover: {roverName}
         <br />
         Earth date: {earthDate}
         <br />
@@ -117,7 +117,7 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
           <Select
             id='rover'
             options={ROVERS}
-            value={rover}
+            value={roverName}
             onChange={handleRoverChange}
           ></Select>
           <input
