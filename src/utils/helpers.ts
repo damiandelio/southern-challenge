@@ -1,6 +1,5 @@
+import { PHOTOS_PER_PAGE } from '@/utils/constants'
 import type { Manifest, RoverName, PhotoInfo } from '@/utils/types'
-
-const PHOTOS_PER_PAGE = 25
 
 export function getManifestByRoverName(
   manifests: Manifest[],

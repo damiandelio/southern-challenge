@@ -1,39 +1,70 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, ChangeEvent } from 'react'
 import * as publicService from '@/utils/public-service'
 import { RoverCard } from '@/components/RoverCard/RoverCard'
 import { InfiniteScrollLoader } from '@/components/InfiniteScrollLoader'
-import { useSearchFilter } from '@/hooks/useSearchFilter'
+import { Select } from '@/components/Select/Select'
+import { ROVERS } from '@/utils/constants'
+import {
+  getManifestByRoverName,
+  getPhotoInfoBySolDate,
+  getPhotoInfoByEarthDate,
+  getTotalPages,
+  getDefaultPhotoInfo
+} from '@/utils/helpers'
 import { FeedContainer } from './Feed.styles'
 import type { MutableRefObject, FunctionComponent } from 'react'
-import type { Rover, Manifest } from '@/utils/types'
+import type { Rover, Manifest, RoverName } from '@/utils/types'
 
 interface FeedProps {
   manifests: Manifest[]
 }
 
 export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
+  // TODO: move this to parent component
+  const initialRover = 'curiosity'
+  const initialManifest = getManifestByRoverName(manifests, initialRover)
+  const initialPhotoInfo = getDefaultPhotoInfo(initialManifest)
+  const initialSolDate = initialPhotoInfo.sol
+  const initialEarthDate = initialPhotoInfo.earth_date
+  const initialTotalPages = getTotalPages(initialPhotoInfo.total_photos)
+
+  const [rover, setRover] = useState<RoverName>(initialRover)
+  const [manifest, setManifest] = useState<Manifest>(initialManifest)
+  const [solDate, setSolDate] = useState(initialSolDate)
+  const [earthDate, setEarthDate] = useState(initialEarthDate)
+  const [totalPages, setTotalPages] = useState(initialTotalPages)
+
   const [rovers, setRovers] = useState<Rover[]>([])
   const [isRetry, setIsRetry] = useState(false)
   const [page, setPage] = useState(1)
 
-  const {
-    rover,
-    solDate,
-    earthDate,
-    totalPages,
-    setRover,
-    setSolData,
-    setEarthDate
-  } = useSearchFilter(manifests)
+  const maxSolDate = manifest.max_sol
+  const maxEarthDate = manifest.max_date
+
+  useEffect(() => {
+    const _manifest = getManifestByRoverName(manifests, rover)
+    const { sol, earth_date, total_photos } = getDefaultPhotoInfo(_manifest)
+    const _totalPages = getTotalPages(total_photos)
+
+    setManifest(_manifest)
+    setSolDate(sol)
+    setEarthDate(earth_date)
+    setTotalPages(_totalPages)
+  }, [manifests, rover])
+
+  useEffect(() => {
+    const photoInfo = getPhotoInfoBySolDate(manifest, solDate)
+
+    if (photoInfo) {
+      setSolDate(photoInfo.sol)
+      setEarthDate(photoInfo.earth_date)
+      setTotalPages(getTotalPages(photoInfo.total_photos))
+    }
+  }, [solDate])
 
   const isLastPage: boolean = page > totalPages
-
-  function resetList() {
-    setRovers([])
-    setPage(1)
-  }
 
   const loadMore = useCallback(async () => {
     try {
@@ -55,22 +86,25 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
     }
   }, [rover, solDate, page, isLastPage])
 
-  function handleSolDateBtn() {
-    setSolData(solDate - 1)
-    resetList()
+  function reset() {
+    setRovers([])
+    setPage(1)
+    // setCamera()
   }
 
-  /* function handleEarthDateBtn() {
-    setEarthDate(earthDate - 1)
-    setRovers([])
-  } */
+  function handleRoverChange(value: RoverName) {
+    setRover(value)
+    reset()
+  }
+
+  function handleDateChange(e: ChangeEvent<HTMLInputElement>) {
+    setSolDate(Number(e.target.value))
+    reset()
+  }
 
   return (
     <FeedContainer>
       <nav>
-        <button onClick={handleSolDateBtn}>Sol date -1</button>
-        {/* <button onClick={handleEarthDateBtn}>Earth date -1</button> */}
-        <br />
         rover: {rover}
         <br />
         Earth date: {earthDate}
@@ -79,6 +113,23 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
         <br />
         Total pages: {totalPages}
         <br />
+        <div>
+          <Select
+            id='rover'
+            options={ROVERS}
+            value={rover}
+            onChange={handleRoverChange}
+          ></Select>
+          <input
+            id='sol'
+            name='sol'
+            type='number'
+            min={0}
+            max={maxSolDate}
+            onChange={handleDateChange}
+            value={solDate}
+          />
+        </div>
       </nav>
 
       {rovers?.map((rover, i) => (
