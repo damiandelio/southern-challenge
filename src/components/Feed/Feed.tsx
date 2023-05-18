@@ -26,17 +26,21 @@ import type {
 
 interface FeedProps {
   manifests: Manifest[]
+  initialManifest: Manifest
+  initialRover: RoverName
+  initialSolDate: number
+  initialEarthDate: string
+  initialTotalPages: number
 }
 
-export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
-  // TODO: move this to parent component
-  const initialRover = ROVERS.curiosity
-  const initialManifest = getManifestByRoverName(manifests, initialRover)
-  const initialPhotoInfo = getPhotoInfoFromManifest(initialManifest)
-  const initialSolDate = initialPhotoInfo.sol
-  const initialEarthDate = initialPhotoInfo.earth_date
-  const initialTotalPages = getTotalPages(initialPhotoInfo.total_photos)
-
+export const Feed: FunctionComponent<FeedProps> = ({
+  manifests,
+  initialManifest,
+  initialRover,
+  initialSolDate,
+  initialEarthDate,
+  initialTotalPages
+}) => {
   const [roverName, setRoverName] = useState<RoverName>(initialRover)
   const [manifest, setManifest] = useState<Manifest>(initialManifest)
   const [solDate, setSolDate] = useState(initialSolDate)
