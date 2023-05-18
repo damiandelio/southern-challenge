@@ -1,5 +1,11 @@
-import { PHOTOS_PER_PAGE } from '@/utils/constants'
-import type { Manifest, RoverName, PhotoInfo } from '@/utils/types'
+import { PHOTOS_PER_PAGE, CAMERAS } from '@/utils/constants'
+import type {
+  Manifest,
+  RoverName,
+  PhotoInfo,
+  Rover,
+  CameraName
+} from '@/utils/types'
 
 export function getManifestByRoverName(
   manifests: Manifest[],
@@ -28,6 +34,15 @@ export function getPhotoInfoByEarthDate(
   return manifest.photos.find(photo => photo.earth_date === earthDate)
 }
 
-export function getTotalPages(totalPhotos: number) {
+export function getTotalPages(totalPhotos: number): number {
   return Math.ceil(totalPhotos / PHOTOS_PER_PAGE)
+}
+
+export function getFilteredRoversByCamera(
+  rovers: Rover[],
+  camera: CameraName | 'all'
+) {
+  return camera === CAMERAS.all
+    ? rovers
+    : rovers.filter(rover => camera === rover.camera.name.toLowerCase())
 }

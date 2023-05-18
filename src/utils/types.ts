@@ -41,7 +41,7 @@ export interface PhotoInfo {
   sol: number
   earth_date: string
   total_photos: number
-  cameras: CameraName
+  cameras: CameraName[]
 }
 
 export interface Manifest {

@@ -5,17 +5,24 @@ import * as publicService from '@/utils/public-service'
 import { RoverCard } from '@/components/RoverCard/RoverCard'
 import { InfiniteScrollLoader } from '@/components/InfiniteScrollLoader'
 import { Select } from '@/components/Select/Select'
-import { ROVERS } from '@/utils/constants'
+import { ROVERS, CAMERAS } from '@/utils/constants'
 import {
   getManifestByRoverName,
   getPhotoInfoFromManifest,
   getPhotoInfoBySolDate,
   getPhotoInfoByEarthDate,
-  getTotalPages
+  getTotalPages,
+  getFilteredRoversByCamera
 } from '@/utils/helpers'
 import { FeedContainer } from './Feed.styles'
 import type { MutableRefObject, FunctionComponent } from 'react'
-import type { Rover, Manifest, RoverName, PhotoInfo } from '@/utils/types'
+import type {
+  Rover,
+  Manifest,
+  RoverName,
+  PhotoInfo,
+  CameraName
+} from '@/utils/types'
 
 interface FeedProps {
   manifests: Manifest[]
@@ -23,7 +30,7 @@ interface FeedProps {
 
 export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
   // TODO: move this to parent component
-  const initialRover = 'curiosity'
+  const initialRover = ROVERS.curiosity
   const initialManifest = getManifestByRoverName(manifests, initialRover)
   const initialPhotoInfo = getPhotoInfoFromManifest(initialManifest)
   const initialSolDate = initialPhotoInfo.sol
@@ -35,15 +42,15 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
   const [solDate, setSolDate] = useState(initialSolDate)
   const [earthDate, setEarthDate] = useState(initialEarthDate)
   const [totalPages, setTotalPages] = useState(initialTotalPages)
-
   const [rovers, setRovers] = useState<Rover[]>([])
+  const [filteredRovers, setFilteredRovers] = useState<Rover[]>([])
   const [isRetry, setIsRetry] = useState(false)
   const [page, setPage] = useState(1)
+  const [camera, setCamera] = useState<CameraName | 'all'>('all')
 
   const maxSolDate = manifest.max_sol
   const maxEarthDate = manifest.max_date
-
-  const isLastPage: boolean = page > totalPages
+  const isLastPage = page > totalPages
 
   const loadMore = useCallback(async () => {
     try {
@@ -68,7 +75,7 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
   function reset() {
     setRovers([])
     setPage(1)
-    // setCamera() TODO
+    setCamera('all')
   }
 
   function switchDate(photoInfo: PhotoInfo | undefined) {
@@ -117,6 +124,11 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
     switchDate(photoInfo)
   }, [earthDate])
 
+  useEffect(() => {
+    const _filteredRovers = getFilteredRoversByCamera(rovers, camera)
+    setFilteredRovers(_filteredRovers)
+  }, [rovers, camera])
+
   return (
     <FeedContainer>
       <nav>
@@ -126,7 +138,14 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
             options={ROVERS}
             value={roverName}
             onChange={handleRoverChange}
-          ></Select>
+          />
+          <Select
+            id='camera'
+            // TODO: use photoInfo.cameras instead CAMERAS to only display available cameras
+            options={CAMERAS}
+            value={camera}
+            onChange={setCamera}
+          />
           <input
             id='sol'
             name='sol'
@@ -148,7 +167,7 @@ export const Feed: FunctionComponent<FeedProps> = ({ manifests }) => {
         <div>Total pages {totalPages}</div>
       </nav>
 
-      {rovers?.map((rover, i) => (
+      {filteredRovers?.map((rover, i) => (
         <RoverCard key={'' + rover.id + i} {...rover} />
       ))}
       {isRetry ? (
