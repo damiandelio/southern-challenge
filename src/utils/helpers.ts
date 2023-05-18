@@ -10,6 +10,10 @@ export function getManifestByRoverName(
   ) as Manifest
 }
 
+export function getPhotoInfoFromManifest(manifest: Manifest): PhotoInfo {
+  return manifest.photos[manifest.photos.length - 1]
+}
+
 export function getPhotoInfoBySolDate(
   manifest: Manifest,
   solDate: number
@@ -26,8 +30,4 @@ export function getPhotoInfoByEarthDate(
 
 export function getTotalPages(totalPhotos: number) {
   return Math.ceil(totalPhotos / PHOTOS_PER_PAGE)
-}
-
-export function getDefaultPhotoInfo(manifest: Manifest): PhotoInfo {
-  return manifest.photos[manifest.photos.length - 1]
 }
