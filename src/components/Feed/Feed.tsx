@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useEffect, ChangeEvent } from 'react'
+import { useState, useCallback, useEffect, ChangeEvent, useMemo } from 'react'
 import * as publicService from '@/utils/public-service'
 import { RoverCard } from '@/components/RoverCard/RoverCard'
 import { InfiniteScrollLoader } from '@/components/InfiniteScrollLoader'
@@ -21,12 +21,14 @@ import type {
   Manifest,
   RoverName,
   PhotoInfo,
-  CameraName
+  CameraName,
+  Cameras
 } from '@/utils/types'
 
 interface FeedProps {
   manifests: Manifest[]
   initialManifest: Manifest
+  initialPhotoInfo: PhotoInfo
   initialRover: RoverName
   initialSolDate: number
   initialEarthDate: string
@@ -36,6 +38,7 @@ interface FeedProps {
 export const Feed: FunctionComponent<FeedProps> = ({
   manifests,
   initialManifest,
+  initialPhotoInfo,
   initialRover,
   initialSolDate,
   initialEarthDate,
@@ -43,6 +46,7 @@ export const Feed: FunctionComponent<FeedProps> = ({
 }) => {
   const [roverName, setRoverName] = useState<RoverName>(initialRover)
   const [manifest, setManifest] = useState<Manifest>(initialManifest)
+  const [photoInfo, setPhotoInfo] = useState<PhotoInfo>(initialPhotoInfo)
   const [solDate, setSolDate] = useState(initialSolDate)
   const [earthDate, setEarthDate] = useState(initialEarthDate)
   const [totalPages, setTotalPages] = useState(initialTotalPages)
@@ -55,6 +59,18 @@ export const Feed: FunctionComponent<FeedProps> = ({
   const maxSolDate = manifest.max_sol
   const maxEarthDate = manifest.max_date
   const isLastPage = page > totalPages
+
+  const availableCameras: Partial<Cameras> = useMemo(() => {
+    const filteredCameras = photoInfo.cameras.reduce((options, camera) => {
+      const key = camera.toLocaleLowerCase() as keyof Cameras
+      return { ...options, [key]: CAMERAS[key] }
+    }, {})
+
+    return {
+      all: CAMERAS.all,
+      ...filteredCameras
+    }
+  }, [photoInfo])
 
   const loadMore = useCallback(async () => {
     try {
@@ -80,14 +96,6 @@ export const Feed: FunctionComponent<FeedProps> = ({
     setRovers([])
     setPage(1)
     setCamera('all')
-  }
-
-  function switchDate(photoInfo: PhotoInfo | undefined) {
-    if (photoInfo) {
-      setSolDate(photoInfo.sol)
-      setEarthDate(photoInfo.earth_date)
-      setTotalPages(getTotalPages(photoInfo.total_photos))
-    }
   }
 
   function handleRoverChange(value: RoverName) {
@@ -119,13 +127,23 @@ export const Feed: FunctionComponent<FeedProps> = ({
   }, [manifests, roverName])
 
   useEffect(() => {
+    setSolDate(photoInfo.sol)
+    setEarthDate(photoInfo.earth_date)
+    setTotalPages(getTotalPages(photoInfo.total_photos))
+  }, [photoInfo])
+
+  useEffect(() => {
     const photoInfo = getPhotoInfoBySolDate(manifest, solDate)
-    switchDate(photoInfo)
+    if (photoInfo) {
+      setPhotoInfo(photoInfo)
+    }
   }, [solDate])
 
   useEffect(() => {
     const photoInfo = getPhotoInfoByEarthDate(manifest, earthDate)
-    switchDate(photoInfo)
+    if (photoInfo) {
+      setPhotoInfo(photoInfo)
+    }
   }, [earthDate])
 
   useEffect(() => {
@@ -136,6 +154,9 @@ export const Feed: FunctionComponent<FeedProps> = ({
   return (
     <FeedContainer>
       <nav>
+        <a href='https://github.com/damiandelio/southern-challenge'>
+          Source code
+        </a>
         <div>
           <Select
             id='rover'
@@ -145,8 +166,7 @@ export const Feed: FunctionComponent<FeedProps> = ({
           />
           <Select
             id='camera'
-            // TODO: use photoInfo.cameras instead CAMERAS to only display available cameras
-            options={CAMERAS}
+            options={availableCameras}
             value={camera}
             onChange={setCamera}
           />

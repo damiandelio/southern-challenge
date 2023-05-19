@@ -28,7 +28,7 @@ export default async function Home() {
       manifests={manifests}
       initialManifest={initialManifest}
       initialRover={initialRover}
-      // initialPhotoInfo={initialPhotoInfo} // TODO: will be used
+      initialPhotoInfo={initialPhotoInfo}
       initialSolDate={initialSolDate}
       initialEarthDate={initialEarthDate}
       initialTotalPages={initialTotalPages}

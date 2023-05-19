@@ -9,6 +9,8 @@ export type CameraName =
   | 'PANCAM'
   | 'MINITES'
 
+export type Cameras = Record<Lowercase<CameraName> | 'all', string>
+
 export type RoverName = 'curiosity' | 'opportunity' | 'spirit'
 
 export type DateType = 'sol' | 'earth_date'

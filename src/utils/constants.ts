@@ -1,4 +1,4 @@
-import { RoverName, CameraName } from '@/utils/types'
+import { RoverName, Cameras } from '@/utils/types'
 
 export const NASA_API_KEY = process.env.NASA_API_KEY // api key will only be available on the server
 export const NASA_API_URL = 'https://api.nasa.gov/mars-photos/api/v1/'
@@ -10,7 +10,7 @@ export const ROVERS: Record<RoverName, RoverName> = {
   spirit: 'spirit'
 }
 
-export const CAMERAS: Record<Lowercase<CameraName> | 'all', string> = {
+export const CAMERAS: Cameras = {
   all: 'all',
   fhaz: 'Front Hazard Avoidance Camera',
   rhaz: 'Rear Hazard Avoidance Camera',
