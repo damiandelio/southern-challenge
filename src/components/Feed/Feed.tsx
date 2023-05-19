@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback, useEffect, ChangeEvent, useMemo } from 'react'
+import { useDebouncedCallback } from 'use-debounce'
 import * as publicService from '@/utils/public-service'
 import { RoverCard } from '@/components/RoverCard/RoverCard'
 import { InfiniteScrollLoader } from '@/components/InfiniteScrollLoader'
@@ -92,6 +93,8 @@ export const Feed: FunctionComponent<FeedProps> = ({
     }
   }, [roverName, solDate, page, isLastPage])
 
+  const debouncedLoadMore = useDebouncedCallback(loadMore, 500)
+
   function reset() {
     setRovers([])
     setPage(1)
@@ -103,7 +106,6 @@ export const Feed: FunctionComponent<FeedProps> = ({
     reset()
   }
 
-  // TODO: debounce
   function handleSolDateChange(e: ChangeEvent<HTMLInputElement>) {
     setSolDate(Number(e.target.value))
     reset()
@@ -136,6 +138,7 @@ export const Feed: FunctionComponent<FeedProps> = ({
     const photoInfo = getPhotoInfoBySolDate(manifest, solDate)
     if (photoInfo) {
       setPhotoInfo(photoInfo)
+      debouncedLoadMore()
     }
   }, [solDate])
 
@@ -150,6 +153,10 @@ export const Feed: FunctionComponent<FeedProps> = ({
     const _filteredRovers = getFilteredRoversByCamera(rovers, camera)
     setFilteredRovers(_filteredRovers)
   }, [rovers, camera])
+
+  useEffect(() => {
+    return () => debouncedLoadMore.cancel()
+  }, [debouncedLoadMore])
 
   return (
     <FeedContainer>
@@ -195,14 +202,13 @@ export const Feed: FunctionComponent<FeedProps> = ({
         <RoverCard key={'' + rover.id + i} {...rover} />
       ))}
       {isRetry ? (
-        <button onClick={loadMore}>Retry</button>
+        <button onClick={debouncedLoadMore}>Retry</button>
       ) : (
         <>
           {!isLastPage ? (
             <InfiniteScrollLoader
-              loadMore={loadMore}
+              loadMore={debouncedLoadMore}
               threshold={2000}
-              debounceDelay={800}
               render={(ref: MutableRefObject<any>) => (
                 <div ref={ref}>Loading...</div>
               )}
