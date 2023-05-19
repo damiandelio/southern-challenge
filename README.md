@@ -8,7 +8,7 @@
 
 Get a valid Nasa API Key - [link](https://api.nasa.gov/)
 
-Add it to the `.env` file following `.env-example` format.
+Add it to the `.env.local` file following `.env-example` format.
 
 Run the development server:
 
