@@ -15,7 +15,7 @@ import {
   getTotalPages,
   getFilteredRoversByCamera
 } from '@/utils/helpers'
-import { FeedContainer } from './Feed.styles'
+import { FeedContainer, Header, Nav } from './Feed.styles'
 import type { MutableRefObject, FunctionComponent } from 'react'
 import type {
   Rover,
@@ -159,65 +159,80 @@ export const Feed: FunctionComponent<FeedProps> = ({
   }, [debouncedLoadMore])
 
   return (
-    <FeedContainer>
-      <nav>
+    <>
+      <Header>
         <a href='https://github.com/damiandelio/southern-challenge'>
           Source code
         </a>
-        <div>
-          <Select
-            id='rover'
-            options={ROVERS}
-            value={roverName}
-            onChange={handleRoverChange}
-          />
-          <Select
-            id='camera'
-            options={availableCameras}
-            value={camera}
-            onChange={setCamera}
-          />
-          <input
-            id='sol'
-            name='sol'
-            type='number'
-            min={0}
-            max={maxSolDate}
-            onChange={handleSolDateChange}
-            value={solDate}
-          />
-          <input
-            id='earth'
-            type='date'
-            max={maxEarthDate}
-            name='earth'
-            onChange={handleEarthDateChange}
-            value={earthDate}
-          />
-        </div>
-        <div>Total pages {totalPages}</div>
-      </nav>
-
-      {filteredRovers?.map((rover, i) => (
-        <RoverCard key={'' + rover.id + i} {...rover} />
-      ))}
-      {isRetry ? (
-        <button onClick={debouncedLoadMore}>Retry</button>
-      ) : (
-        <>
-          {!isLastPage ? (
-            <InfiniteScrollLoader
-              loadMore={debouncedLoadMore}
-              threshold={2000}
-              render={(ref: MutableRefObject<any>) => (
-                <div ref={ref}>Loading...</div>
-              )}
+        <Nav>
+          <div>
+            <label htmlFor='rover'>Rover</label>
+            <Select
+              id='rover'
+              options={ROVERS}
+              value={roverName}
+              onChange={handleRoverChange}
             />
-          ) : (
-            <div>There are no more photos for this date, try with another.</div>
-          )}
-        </>
-      )}
-    </FeedContainer>
+          </div>
+          <div>
+            <label htmlFor='camera'>Camera</label>
+            <Select
+              id='camera'
+              options={availableCameras}
+              value={camera}
+              onChange={setCamera}
+            />
+          </div>
+          <div>
+            <label htmlFor='sol'>Sol date</label>
+            <input
+              id='sol'
+              name='sol'
+              type='number'
+              min={0}
+              max={maxSolDate}
+              onChange={handleSolDateChange}
+              value={solDate}
+            />
+          </div>
+          <div>
+            <label htmlFor='earth'>Earth date</label>
+            <input
+              id='earth'
+              type='date'
+              max={maxEarthDate}
+              name='earth'
+              onChange={handleEarthDateChange}
+              value={earthDate}
+            />
+          </div>
+        </Nav>
+        <div>Total pages {totalPages}</div>
+      </Header>
+      <FeedContainer>
+        {filteredRovers?.map((rover, i) => (
+          <RoverCard key={'' + rover.id + i} {...rover} />
+        ))}
+        {isRetry ? (
+          <button onClick={debouncedLoadMore}>Retry</button>
+        ) : (
+          <>
+            {!isLastPage ? (
+              <InfiniteScrollLoader
+                loadMore={debouncedLoadMore}
+                threshold={2000}
+                render={(ref: MutableRefObject<any>) => (
+                  <div ref={ref}>Loading...</div>
+                )}
+              />
+            ) : (
+              <div>
+                There are no more photos for this date, try with another.
+              </div>
+            )}
+          </>
+        )}
+      </FeedContainer>
+    </>
   )
 }
