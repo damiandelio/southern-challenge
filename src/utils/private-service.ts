@@ -1,10 +1,18 @@
-import { NASA_API_URL, NASA_API_KEY } from '@/utils/constants'
+import {
+  NASA_API_URL,
+  NASA_API_KEY,
+  MANIFEST_CACHE_LIFE_TIME
+} from '@/utils/constants'
 import type { Rover, RoverName, Manifest, DateType } from '@/utils/types'
 
-let cachedResponse: Manifest[] | undefined
+let cachedResponse: Manifest[] = []
+let lastCached: number = 0
 
 export async function fetchManifests(): Promise<Manifest[]> {
-  if (cachedResponse) {
+  if (
+    cachedResponse.length &&
+    Date.now() - lastCached < MANIFEST_CACHE_LIFE_TIME
+  ) {
     return cachedResponse
   }
 
@@ -22,6 +30,7 @@ export async function fetchManifests(): Promise<Manifest[]> {
     getManifestFor('opportunity')
   ])
 
+  lastCached = Date.now()
   cachedResponse = manifests
   return manifests
 }
