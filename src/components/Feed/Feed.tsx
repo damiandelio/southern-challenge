@@ -107,7 +107,9 @@ export const Feed: FunctionComponent<FeedProps> = ({
   }
 
   function handleSolDateChange(e: ChangeEvent<HTMLInputElement>) {
-    setSolDate(Number(e.target.value))
+    const value = Number(e.target.value)
+    const _solDate = Math.min(value, maxSolDate)
+    setSolDate(_solDate)
     reset()
   }
 
