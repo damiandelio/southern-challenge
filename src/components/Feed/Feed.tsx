@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect, ChangeEvent, useMemo } from 'react'
 import { useDebouncedCallback } from 'use-debounce'
 import * as publicService from '@/utils/public-service'
 import { RoverCard } from '@/components/RoverCard/RoverCard'
-import { InfiniteScrollLoader } from '@/components/InfiniteScrollLoader'
+import { InfiniteScrollLoader } from '@/components/InfiniteScrollLoader/InfiniteScrollLoader'
 import { Select } from '@/components/Select/Select'
 import { ROVERS, CAMERAS } from '@/utils/constants'
 import {
